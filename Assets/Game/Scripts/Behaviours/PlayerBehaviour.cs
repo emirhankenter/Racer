@@ -44,11 +44,15 @@ namespace Game.Scripts.Behaviours
         {
             _holding = true;
 
+            Debug.Log("PressPerformed");
+
             StartCoroutine(Holding());
         }
         private void OnPressCanceled(InputAction.CallbackContext obj)
         {
             _holding = false;
+
+            Debug.Log("PressCanceled");
         }
 
         private IEnumerator Holding()

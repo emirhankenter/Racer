@@ -1,4 +1,5 @@
 ﻿using Game.Scripts.Behaviours;
+using Mek.Controllers;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,13 +18,23 @@ namespace Game.Scripts.Controllers
         }
         private void PrepareLevel()
         {
-            CurrentLevel = Instantiate(_levels[(PlayerData.Level - 1) & _levels.Count]);
+            CurrentLevel = Instantiate(_levels[(PlayerData.Level - 1) % _levels.Count]);
             CurrentLevel.Initialize();
         }
 
         private void DisposeLevel()
         {
+            CurrentLevel.Dispose();
 
+            Destroy(CurrentLevel.gameObject);
+
+            PrepareLevel();
+        }
+
+        private void NextLevel()
+        {
+            PlayerData.Level++;
+            DisposeLevel();
         }
     }
 }
