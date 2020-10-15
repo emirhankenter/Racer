@@ -1,4 +1,5 @@
-﻿using Game.Scripts.Models;
+﻿using Game.Scripts.Utilities;
+using Game.Scripts.Models;
 using Mek.Controllers;
 using System;
 using System.Collections;
@@ -16,6 +17,7 @@ namespace Game.Scripts.Behaviours
     public class PlayerBehaviour : MonoBehaviour
     {
         [SerializeField] Rigidbody _rigidBody;
+        [SerializeField] LineBehaviour _linePrefab;
         [SerializeField] LineBehaviour _line;
 
         protected float Speed => 150f;
@@ -144,6 +146,7 @@ namespace Game.Scripts.Behaviours
 
             transform.SetParent(corner.AnchorPoint, true);
 
+            _line = _linePrefab.Spawn();
             _line.Initialize(transform, corner.AnchorPoint);
 
             ToggleRotating(true, direction);

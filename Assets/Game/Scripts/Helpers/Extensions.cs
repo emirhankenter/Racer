@@ -1,4 +1,5 @@
 ﻿using Game.Scripts.Behaviours;
+using Game.Scripts.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,5 +21,10 @@ public static class Extensions
         }
 
         return null;
+    }
+
+    public static T Spawn<T>(this T target)
+    {
+        return ObjectPoolingManager.Instance.Spawn(target);
     }
 }
