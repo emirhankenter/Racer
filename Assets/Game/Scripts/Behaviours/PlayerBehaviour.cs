@@ -1,4 +1,5 @@
 ﻿using Game.Scripts.Models;
+using Mek.Controllers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,15 +8,24 @@ using UnityEngine.InputSystem;
 
 namespace Game.Scripts.Behaviours
 {
+    public enum Direction
+    {
+        Left,
+        Right
+    }
     public class PlayerBehaviour : MonoBehaviour
     {
         [SerializeField] Rigidbody _rigidBody;
+        [SerializeField] LineBehaviour _line;
 
         protected float Speed => 150f;
 
         private bool _holding;
         private bool _canMove;
         private bool _canRotate;
+
+        private string MoveRoutineKey => $"MoveRoutine{GetInstanceID()}";
+        private string RotateRoutineKey => $"RotateRoutine{GetInstanceID()}";
 
         protected PlayerInputs Input;
         private void Awake()
@@ -26,8 +36,10 @@ namespace Game.Scripts.Behaviours
 
             RegisterEvents();
 
-            _canMove = true;
-            StartCoroutine(MoveRoutine());
+            //_canMove = true;
+            //CoroutineController.StartCoroutine(MoveRoutineKey, MoveRoutine());
+
+            ToggleMovement(true);
         }
 
         private void OnDestroy()
@@ -61,14 +73,18 @@ namespace Game.Scripts.Behaviours
             Debug.Log("PressPerformed");
 
             StartCoroutine(Holding());
-            StartCoroutine(MoveRoutine());
         }
         private void OnPressCanceled(InputAction.CallbackContext obj)
         {
             _holding = false;
+            _line.Dispose();
 
             Debug.Log("PressCanceled");
+
+            ToggleMovement(true);
         }
+
+        #region Routines
 
         private IEnumerator MoveRoutine()
         {
@@ -83,18 +99,37 @@ namespace Game.Scripts.Behaviours
         {
             while (_holding)
             {
+                if (_canRotate)
+                {
+                    ToggleMovement(false);
+                }
+
                 yield return new WaitForFixedUpdate();
             }
         }
 
-        private IEnumerator Rotating()
+        private IEnumerator RotateRoutine(Direction? direction = null)
         {
+            var parent = transform.parent;
+
             while (_canRotate)
             {
-                _rigidBody.MoveRotation(_rigidBody.rotation * Quaternion.Euler(new Vector3(0, 120, 0) * Time.fixedDeltaTime));
+                if (_holding)
+                {
+                    transform.parent.rotation = Quaternion.Euler(0, transform.parent.eulerAngles.y + (direction == Direction.Right ? 120f : -120f) * Time.fixedDeltaTime, 0);
+
+                    //transform.rotation = Quaternion.Euler(0, transform.parent.localEulerAngles.y + (direction == Direction.Right ? 50f : -50f) * Time.fixedDeltaTime, 0);
+
+                    transform.Rotate(new Vector3(0, (direction == Direction.Right ? 45f : -45f), 0) * Time.fixedDeltaTime, Space.Self);
+
+                    _line.UpdateLine();
+                    Debug.Log($"Line: {_line.name}");
+                }
                 yield return new WaitForFixedUpdate();
             }
         }
+
+        #endregion
 
         private void OnTriggerEnter(Collider other)
         {
@@ -102,10 +137,16 @@ namespace Game.Scripts.Behaviours
 
             var corner = other.GetComponent<CornerBehaviour>();
 
+            var projectionOnRight = Vector3.Dot(corner.AnchorPoint.transform.position - transform.position, transform.right);
+
+            //var direction = projectionOnRight < 0 ? Direction.Left : Direction.Right;
+            var direction = transform.GetDirectionTo(corner.AnchorPoint);
+
             transform.SetParent(corner.AnchorPoint, true);
 
-            _canRotate = true;
-            StartCoroutine(Rotating());
+            _line.Initialize(transform, corner.AnchorPoint);
+
+            ToggleRotating(true, direction);
 
             Debug.Log("Entered");
         }
@@ -113,10 +154,23 @@ namespace Game.Scripts.Behaviours
         private void OnTriggerExit(Collider other)
         {
             if (!other.gameObject.CompareTag("Corner")) return;
-            _canRotate = false;
             transform.SetParent(null);
 
+            ToggleRotating(false);
+            ToggleMovement(true);
+
             Debug.Log("Exited");
+        }
+
+        private void ToggleMovement(bool state)
+        {
+            _canMove = state;
+            CoroutineController.ToggleRoutine(state, MoveRoutineKey, MoveRoutine());
+        }
+        private void ToggleRotating(bool state, Direction? direction = null)
+        {
+            _canRotate = state;
+            CoroutineController.ToggleRoutine(state, RotateRoutineKey, RotateRoutine(direction));
         }
     }
 }

@@ -10,8 +10,6 @@ namespace Mek.Controllers
     {
         private static Dictionary<string, IEnumerator> _coroutineDictionary = new Dictionary<string, IEnumerator>();
 
-        private static string DoAfterGivenTimeKey = "DoAfterGivenTimeRoutine";
-
         public static void StartCoroutine(string key, IEnumerator coroutine)
         {
             StartMyCoroutine(key, coroutine);
@@ -43,6 +41,19 @@ namespace Mek.Controllers
             _coroutineDictionary.Remove(key);
         }
 
+        public static void ToggleRoutine(bool state, string routineKey, IEnumerator routine)
+        {
+            if (state && !IsCoroutineRunning(routineKey))
+            {
+                StartCoroutine(routineKey, routine);
+            }
+
+            if (!state && IsCoroutineRunning(routineKey))
+            {
+                StopCoroutine(routineKey);
+            }
+        }
+
         #region Helpers
 
         public static void DoAfterGivenTime(float time, Action onComplete)
@@ -52,7 +63,7 @@ namespace Mek.Controllers
 
         public static void DoAfterFixedUpdate(Action onComplete)
         {
-            StartCoroutine("WaitFixedUpdate", FixedUpdateRoutine());
+            CoroutineHelper.Instance.StartCoroutine(FixedUpdateRoutine());
 
             IEnumerator FixedUpdateRoutine()
             {
