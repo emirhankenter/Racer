@@ -8,8 +8,8 @@ public static class Extensions
 {
     public static Direction? GetDirectionTo(this Transform transform, Transform target)
     {
-        var perp = Vector3.Cross(transform.position, target.position);
-        var direction = Vector3.Dot(perp, Vector3.up);
+        var right = Vector3.Cross(transform.up, transform.forward);
+        var direction = Vector3.Dot(right, target.position - transform.position);
 
         if (direction > 0.0f)
         {

@@ -208,6 +208,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rigidBody: {fileID: 1219775165134111301}
+  _linePrefab: {fileID: 0}
+  _line: {fileID: 0}
+  _speed: 40
+  _angularSpeed: 100
 --- !u!1 &8932767410703461405
 GameObject:
   m_ObjectHideFlags: 0

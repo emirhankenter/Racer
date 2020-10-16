@@ -41,7 +41,7 @@ namespace Game.Scripts.Utilities
             }
 
             selectedObj.SetActive(true);
-            CoroutineController.DoAfterGivenTime(0.5f, () => selectedObj.SetActive(false));
+            //CoroutineController.DoAfterGivenTime(0.5f, () => selectedObj.SetActive(false));
 
             return selectedObj.GetComponent<T>();
         }

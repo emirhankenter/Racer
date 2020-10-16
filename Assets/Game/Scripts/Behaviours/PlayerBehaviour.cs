@@ -16,11 +16,16 @@ namespace Game.Scripts.Behaviours
     }
     public class PlayerBehaviour : MonoBehaviour
     {
-        [SerializeField] Rigidbody _rigidBody;
-        [SerializeField] LineBehaviour _linePrefab;
-        [SerializeField] LineBehaviour _line;
+        [SerializeField] private Rigidbody _rigidBody;
+        [SerializeField] private LineBehaviour _linePrefab;
 
-        protected float Speed => 150f;
+        private LineBehaviour _line;
+
+        [SerializeField] private float _speed = 40;
+        [SerializeField] private float _angularSpeed = 100;
+
+        protected float Speed => _speed;
+        protected float AngularSpeed => _angularSpeed;
 
         private bool _holding;
         private bool _canMove;
@@ -72,16 +77,12 @@ namespace Game.Scripts.Behaviours
         {
             _holding = true;
 
-            Debug.Log("PressPerformed");
-
             StartCoroutine(Holding());
         }
         private void OnPressCanceled(InputAction.CallbackContext obj)
         {
             _holding = false;
             _line.Dispose();
-
-            Debug.Log("PressCanceled");
 
             ToggleMovement(true);
         }
@@ -118,14 +119,13 @@ namespace Game.Scripts.Behaviours
             {
                 if (_holding)
                 {
-                    transform.parent.rotation = Quaternion.Euler(0, transform.parent.eulerAngles.y + (direction == Direction.Right ? 120f : -120f) * Time.fixedDeltaTime, 0);
+                    transform.parent.rotation = Quaternion.Euler(0, transform.parent.eulerAngles.y + (direction == Direction.Right ? 1 : -1) * AngularSpeed * Time.fixedDeltaTime, 0);
 
                     //transform.rotation = Quaternion.Euler(0, transform.parent.localEulerAngles.y + (direction == Direction.Right ? 50f : -50f) * Time.fixedDeltaTime, 0);
 
                     transform.Rotate(new Vector3(0, (direction == Direction.Right ? 45f : -45f), 0) * Time.fixedDeltaTime, Space.Self);
 
                     _line.UpdateLine();
-                    Debug.Log($"Line: {_line.name}");
                 }
                 yield return new WaitForFixedUpdate();
             }
@@ -139,9 +139,6 @@ namespace Game.Scripts.Behaviours
 
             var corner = other.GetComponent<CornerBehaviour>();
 
-            var projectionOnRight = Vector3.Dot(corner.AnchorPoint.transform.position - transform.position, transform.right);
-
-            //var direction = projectionOnRight < 0 ? Direction.Left : Direction.Right;
             var direction = transform.GetDirectionTo(corner.AnchorPoint);
 
             transform.SetParent(corner.AnchorPoint, true);
@@ -149,9 +146,9 @@ namespace Game.Scripts.Behaviours
             _line = _linePrefab.Spawn();
             _line.Initialize(transform, corner.AnchorPoint);
 
-            ToggleRotating(true, direction);
+            Debug.Log(direction);
 
-            Debug.Log("Entered");
+            ToggleRotating(true, direction);
         }
 
         private void OnTriggerExit(Collider other)
@@ -161,8 +158,6 @@ namespace Game.Scripts.Behaviours
 
             ToggleRotating(false);
             ToggleMovement(true);
-
-            Debug.Log("Exited");
         }
 
         private void ToggleMovement(bool state)
