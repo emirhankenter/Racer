@@ -3,6 +3,7 @@ using Game.Scripts.Behaviours;
 using Game.Scripts.Controllers;
 using Game.Scripts.Models;
 using Game.Scripts.View.Elements;
+using Mek.Controllers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace Game.Scripts.View
     {
         [SerializeField] private CoinElement _coinElement;
         [SerializeField] private LevelElement _levelElement;
+        [SerializeField] private ParticleSystem _confetti;
 
         public override void Open(ViewParameters parameters)
         {
@@ -35,6 +37,12 @@ namespace Game.Scripts.View
 
         private void RegisterEvents()
         {
+            GameController.PlayConfetti += PlayConfetti;
+        }
+
+        private void UnregisterEvents()
+        {
+            GameController.PlayConfetti -= PlayConfetti;
         }
 
         private void OnCoinCollected()
@@ -45,18 +53,26 @@ namespace Game.Scripts.View
         private void OnFinishLinePassed()
         {
         }
-
-        private void UnregisterEvents()
-        {
-        }
         private void InitializeElements()
         {
             _coinElement.Initialize(PlayerData.Coin);
             _levelElement.Initialize();
+            _confetti.gameObject.SetActive(false);
         }
 
         private void DisposeElements()
         {
+        }
+
+        public void PlayConfetti(Action onComplete = null)
+        {
+            _confetti.gameObject.SetActive(true);
+            _confetti.Play();
+            CoroutineController.DoAfterGivenTime(_confetti.main.duration, () =>
+            {
+                _confetti.gameObject.SetActive(false);
+                onComplete?.Invoke();
+            });
         }
     }
 

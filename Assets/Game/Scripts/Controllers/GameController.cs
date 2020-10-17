@@ -10,6 +10,8 @@ namespace Game.Scripts.Controllers
 {
     public class GameController : MonoBehaviour
     {
+        public static event Action<Action> PlayConfetti;
+
         [SerializeField] private PlayerBehaviour _player;
         [SerializeField] private ParticleSystem _confetti;
 
@@ -51,17 +53,20 @@ namespace Game.Scripts.Controllers
         {
             CurrentLevel.Completed -= OnLevelCompleted;
 
-            ViewController.Instance.InGameView.Close();
-
             if (isSuccess)
             {
                 var earnAmount = PlayerData.Level * 50;
-                PlayConfetti(() => ViewController.Instance.GameOverView.Open(new GameOverViewParameters(earnAmount, OnRewardClaimed)));
+                PlayConfetti?.Invoke(() =>
+                {
+                    ViewController.Instance.InGameView.Close();
+                    ViewController.Instance.GameOverView.Open(new GameOverViewParameters(earnAmount, OnRewardClaimed));
+                });
                 PlayerData.Level++;
                 PlayerData.Coin += earnAmount;
             }
             else
             {
+                ViewController.Instance.InGameView.Close();
                 DisposeLevel();
             }
         }
@@ -75,16 +80,16 @@ namespace Game.Scripts.Controllers
             });
         }
 
-        private void PlayConfetti(Action onComplete = null)
-        {
-            _confetti.transform.position = _player.transform.position + Vector3.up * 1f;
-            _confetti.gameObject.SetActive(true);
-            _confetti.Play();
-            CoroutineController.DoAfterGivenTime(_confetti.main.duration, () => 
-            {
-                _confetti.gameObject.SetActive(false);
-                onComplete?.Invoke();
-            });
-        }
+        //private void PlayConfetti(Action onComplete = null)
+        //{
+        //    _confetti.transform.position = _player.transform.position + Vector3.up * 1f;
+        //    _confetti.gameObject.SetActive(true);
+        //    _confetti.Play();
+        //    CoroutineController.DoAfterGivenTime(_confetti.main.duration, () => 
+        //    {
+        //        _confetti.gameObject.SetActive(false);
+        //        onComplete?.Invoke();
+        //    });
+        //}
     }
 }
