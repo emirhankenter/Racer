@@ -10,6 +10,7 @@ namespace Game.Scripts.Controllers
     public class GameController : MonoBehaviour
     {
         [SerializeField] private PlayerBehaviour _player;
+        [SerializeField] private ParticleSystem _confetti;
 
         [SerializeField] private List<LevelBehaviour> _levels;
 
@@ -50,12 +51,24 @@ namespace Game.Scripts.Controllers
 
             if (isSuccess)
             {
-                NextLevel();
+                PlayConfetti();
+                CoroutineController.DoAfterGivenTime(2f, () =>
+                {
+                    NextLevel();
+                });
             }
             else
             {
                 DisposeLevel();
             }
+        }
+
+        private void PlayConfetti()
+        {
+            _confetti.transform.position = _player.transform.position + Vector3.up * 1f;
+            _confetti.gameObject.SetActive(true);
+            _confetti.Play();
+            CoroutineController.DoAfterGivenTime(_confetti.main.duration, () => _confetti.gameObject.SetActive(false));
         }
     }
 }

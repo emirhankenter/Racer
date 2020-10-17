@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Corner
+  - FinishLine
   layers:
   - Default
   - TransparentFX

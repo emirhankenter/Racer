@@ -13,6 +13,7 @@ namespace Game.Scripts.Utilities
         public RoadBehaviour LeftTurn;
         public RoadBehaviour URightTurn;
         public RoadBehaviour ULeftTurn;
+        public RoadBehaviour Finish;
 
         private RoadBehaviour[] RegularRoads;
         private RoadBehaviour[] URoads;
@@ -78,11 +79,17 @@ namespace Game.Scripts.Utilities
                 //    {
                 //        last2Roads.Add(road);
                 //    }
-                //    _lastRoads.Dequeue();
+                //    _lastRoads.Dequeue();SQ
                 //}
                 if (i == 0)
                 {
                     _lastRoad = Instantiate(RoadDictionary.GetRandomRegular(), parent);
+                    continue;
+                }
+
+                if (i == roadCount - 1)
+                {
+                    _lastRoad = InstantiateRoadAtPosition(RoadDictionary.Finish);
                     continue;
                 }
 

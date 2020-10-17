@@ -15,9 +15,11 @@ namespace Game.Scripts.Behaviours
         Left,
         Right
     }
+
+    public delegate void WinDelegate(bool isSuccess);
     public class PlayerBehaviour : MonoBehaviour
     {
-        public static event Action Hit;
+        public static event WinDelegate Finish;
 
         [SerializeField] private Rigidbody _rigidBody;
         [SerializeField] private LineBehaviour _linePrefab;
@@ -176,41 +178,54 @@ namespace Game.Scripts.Behaviours
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.gameObject.CompareTag("Corner")) return;
+            if (other.gameObject.CompareTag("Corner"))
+            {
+                var corner = other.GetComponent<CornerBehaviour>();
 
-            var corner = other.GetComponent<CornerBehaviour>();
+                var direction = transform.GetDirectionTo(corner.AnchorPoint);
 
-            var direction = transform.GetDirectionTo(corner.AnchorPoint);
+                transform.SetParent(corner.AnchorPoint, true);
 
-            transform.SetParent(corner.AnchorPoint, true);
+                _line = _linePrefab.Spawn();
+                _line.Initialize(transform, corner.AnchorPoint);
 
-            _line = _linePrefab.Spawn();
-            _line.Initialize(transform, corner.AnchorPoint);
+                ToggleRotating(true, direction);
+            }
 
-            ToggleRotating(true, direction);
+            else if (other.gameObject.CompareTag("FinishLine"))
+            {
+                StopAll();
+                Finish?.Invoke(true);
+            }
         }
 
         private void OnTriggerExit(Collider other)
         {
-            if (!other.gameObject.CompareTag("Corner")) return;
-            transform.SetParent(null);
+            if (other.gameObject.CompareTag("Corner"))
+            {
+                transform.SetParent(null);
 
-            ToggleRotating(false);
-            ToggleMovement(true);
+                ToggleRotating(false);
+                ToggleMovement(true);
+            }
         }
 
         private void OnCollisionEnter(Collision collision)
         {
             if (collision.gameObject.layer == LayerMask.NameToLayer("RoadBorder"))
             {
-                Debug.Log("Hit");
-                ToggleMovement(false);
-                ToggleRotating(false);
-                _rigidBody.isKinematic = true;
-                _isHit = true;
-                transform.SetParent(null, true);
-                CoroutineController.DoAfterFixedUpdate(() => Hit?.Invoke());
+                StopAll();
+                CoroutineController.DoAfterFixedUpdate(() => Finish?.Invoke(false));
             }
+        }
+
+        private void StopAll()
+        {
+            ToggleMovement(false);
+            ToggleRotating(false);
+            _rigidBody.isKinematic = true;
+            _isHit = true;
+            transform.SetParent(null, true);
         }
 
         private void ToggleTireTracks(bool state)

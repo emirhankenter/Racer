@@ -11,7 +11,8 @@ namespace Assets.Game.Scripts.Behaviours
         RightTurn = 1,
         LeftTurn = 2,
         U_RightTurn = 3,
-        U_LeftTurn = 4
+        U_LeftTurn = 4,
+        Finish = 5
     }
     public class RoadBehaviour : MonoBehaviour
     {

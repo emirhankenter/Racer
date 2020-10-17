@@ -67,3 +67,5 @@ MonoBehaviour:
       type: 3}
     ULeftTurn: {fileID: 170006330268816777, guid: 9e38907b69ae8804aa0042795990433b,
       type: 3}
+    Finish: {fileID: 6885568183720359717, guid: 33fe7ed928693674787b69638455f84c,
+      type: 3}

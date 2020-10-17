@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace Game.Scripts.Behaviours
 {
-    public delegate void WinDelegate(bool isSuccess);
     public class LevelBehaviour : MonoBehaviour
     {
         public static event Action Started;
@@ -18,19 +17,19 @@ namespace Game.Scripts.Behaviours
         public void Initialize()
         {
             _mapGenerator.Generate(transform, _roadCount);
-            PlayerBehaviour.Hit += OnPlayerHit;
+            PlayerBehaviour.Finish += OnPlayerFinished;
 
             Started?.Invoke();
         }
 
         public void Dispose()
         {
-            PlayerBehaviour.Hit -= OnPlayerHit;
+            PlayerBehaviour.Finish -= OnPlayerFinished;
         }
 
-        private void OnPlayerHit()
+        private void OnPlayerFinished(bool isSuccess)
         {
-            Completed?.Invoke(false);
+            Completed?.Invoke(isSuccess);
         }
     }
 }
