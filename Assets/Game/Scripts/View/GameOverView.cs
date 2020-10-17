@@ -12,6 +12,7 @@ namespace Game.Scripts.View
     public class GameOverView : View
     {
         [SerializeField] private CoinElement _coinElement;
+        [SerializeField] private MovingCoinAnimator _movingCoinElement;
         [SerializeField] private TextMeshProUGUI _earnAmountText;
 
         [SerializeField] private GameObject _claimButtonBlacken;
@@ -59,10 +60,18 @@ namespace Game.Scripts.View
 
         public void OnClaimButtonClicked()
         {
-            PlayerData.Coin += _params.EarnAmount;
-            _coinElement.UpdateCoin(PlayerData.Coin);
             _claimButtonBlacken.gameObject.SetActive(true);
-            _params.OnComplete?.Invoke();
+
+            _movingCoinElement.Move(
+                onFirstCoinCollected: () =>
+                {
+                    PlayerData.Coin += _params.EarnAmount;
+                    _coinElement.UpdateCoin(PlayerData.Coin);
+                },
+                onLastCoinCollected: () =>
+                {
+                    _params.OnComplete?.Invoke();
+                });
         }
     }
 
