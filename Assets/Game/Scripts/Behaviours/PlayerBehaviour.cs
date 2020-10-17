@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using DG.Tweening;
 
 namespace Game.Scripts.Behaviours
 {
@@ -19,17 +20,22 @@ namespace Game.Scripts.Behaviours
         [SerializeField] private Rigidbody _rigidBody;
         [SerializeField] private LineBehaviour _linePrefab;
 
-        private LineBehaviour _line;
-
-        [SerializeField] private float _speed = 40;
-        [SerializeField] private float _angularSpeed = 100;
+        [SerializeField] private float _speed = 40f;
+        [SerializeField] private float _angularSpeed = 100f;
+        [SerializeField] private float _localAngularSpeed = 1f;
 
         protected float Speed => _speed;
         protected float AngularSpeed => _angularSpeed;
+        protected float LocalAngularSpeed => _localAngularSpeed;
+
+        private LineBehaviour _line;
 
         private bool _holding;
         private bool _canMove;
         private bool _canRotate;
+
+        private Vector3 _localRotationLimit = new Vector3(0, 45, 0);
+        private Vector3 _localRotationDifference = new Vector3();
 
         private string MoveRoutineKey => $"MoveRoutine{GetInstanceID()}";
         private string RotateRoutineKey => $"RotateRoutine{GetInstanceID()}";
@@ -42,9 +48,6 @@ namespace Game.Scripts.Behaviours
             Input.Enable();
 
             RegisterEvents();
-
-            //_canMove = true;
-            //CoroutineController.StartCoroutine(MoveRoutineKey, MoveRoutine());
 
             ToggleMovement(true);
         }
@@ -85,6 +88,8 @@ namespace Game.Scripts.Behaviours
             _line.Dispose();
 
             ToggleMovement(true);
+            ToggleRotating(false);
+            Drift();
         }
 
         #region Routines
@@ -113,7 +118,10 @@ namespace Game.Scripts.Behaviours
 
         private IEnumerator RotateRoutine(Direction? direction = null)
         {
-            var parent = transform.parent;
+            var initialRotation = transform.localEulerAngles;
+            var initialRotationQuaternion = transform.localRotation;
+            var limit = transform.localEulerAngles + (direction == Direction.Right ? _localRotationLimit : -_localRotationLimit);
+            var targetRotation = new Quaternion();
 
             while (_canRotate)
             {
@@ -121,13 +129,23 @@ namespace Game.Scripts.Behaviours
                 {
                     transform.parent.rotation = Quaternion.Euler(0, transform.parent.eulerAngles.y + (direction == Direction.Right ? 1 : -1) * AngularSpeed * Time.fixedDeltaTime, 0);
 
-                    //transform.rotation = Quaternion.Euler(0, transform.parent.localEulerAngles.y + (direction == Direction.Right ? 50f : -50f) * Time.fixedDeltaTime, 0);
+                    targetRotation = Quaternion.Euler(initialRotation + limit);
+                    transform.localRotation = Quaternion.Lerp(transform.localRotation, targetRotation, LocalAngularSpeed * Time.fixedDeltaTime);
 
-                    transform.Rotate(new Vector3(0, (direction == Direction.Right ? 45f : -45f), 0) * Time.fixedDeltaTime, Space.Self);
+                    var difference = Quaternion.Angle(transform.localRotation, initialRotationQuaternion);
+                    _localRotationDifference = new Vector3(0, (direction == Direction.Right ? difference : -difference), 0);
 
                     _line.UpdateLine();
                 }
                 yield return new WaitForFixedUpdate();
+            }
+        }
+
+        private void Drift()
+        {
+            if (_localRotationDifference != Vector3.zero)
+            {
+                _rigidBody.transform.DORotate(-_localRotationDifference, 0.5f, RotateMode.WorldAxisAdd).SetEase(Ease.OutBack).OnComplete(() => { });
             }
         }
 
@@ -145,8 +163,6 @@ namespace Game.Scripts.Behaviours
 
             _line = _linePrefab.Spawn();
             _line.Initialize(transform, corner.AnchorPoint);
-
-            Debug.Log(direction);
 
             ToggleRotating(true, direction);
         }
