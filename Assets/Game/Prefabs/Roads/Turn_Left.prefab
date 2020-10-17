@@ -9,8 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7521874807212216933}
+  - component: {fileID: 5466368718971270573}
   m_Layer: 0
-  m_Name: Left
+  m_Name: Turn_Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31,6 +32,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5466368718971270573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7521874807212216932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e19ab6dee0ddbc4b8d897a0cd20f53d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _roadType: 2
+  _edge: {fileID: 7521874807318149580}
 --- !u!1 &7521874807318149579
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,8 +17,11 @@ namespace Game.Scripts.Behaviours
     }
     public class PlayerBehaviour : MonoBehaviour
     {
+        public static event Action Hit;
+
         [SerializeField] private Rigidbody _rigidBody;
         [SerializeField] private LineBehaviour _linePrefab;
+        [SerializeField] private List<TrailRenderer> _tireTracks;
 
         [SerializeField] private float _speed = 40f;
         [SerializeField] private float _angularSpeed = 100f;
@@ -33,9 +36,14 @@ namespace Game.Scripts.Behaviours
         private bool _holding;
         private bool _canMove;
         private bool _canRotate;
+        private bool _canDrift;
+        private bool _isHit;
 
         private Vector3 _localRotationLimit = new Vector3(0, 45, 0);
         private Vector3 _localRotationDifference = new Vector3();
+
+        private Vector3 _initialPosition;
+        private Quaternion _initialRotation;
 
         private string MoveRoutineKey => $"MoveRoutine{GetInstanceID()}";
         private string RotateRoutineKey => $"RotateRoutine{GetInstanceID()}";
@@ -49,7 +57,8 @@ namespace Game.Scripts.Behaviours
 
             RegisterEvents();
 
-            ToggleMovement(true);
+            _initialPosition = transform.position;
+            _initialRotation = transform.rotation;
         }
 
         private void OnDestroy()
@@ -74,6 +83,17 @@ namespace Game.Scripts.Behaviours
 
         private void FixedUpdate()
         {
+        }
+
+        public void Initialize()
+        {
+            transform.SetParent(null);
+            transform.position = _initialPosition;
+            transform.rotation = _initialRotation;
+            _rigidBody.isKinematic = false;
+            _isHit = false;
+            _canDrift = false;
+            ToggleMovement(true);
         }
 
         private void OnPressPerformed(InputAction.CallbackContext obj)
@@ -107,7 +127,7 @@ namespace Game.Scripts.Behaviours
         {
             while (_holding)
             {
-                if (_canRotate)
+                if (_canRotate && _canMove)
                 {
                     ToggleMovement(false);
                 }
@@ -122,6 +142,8 @@ namespace Game.Scripts.Behaviours
             var initialRotationQuaternion = transform.localRotation;
             var limit = transform.localEulerAngles + (direction == Direction.Right ? _localRotationLimit : -_localRotationLimit);
             var targetRotation = new Quaternion();
+
+            _canDrift = true;
 
             while (_canRotate)
             {
@@ -143,9 +165,10 @@ namespace Game.Scripts.Behaviours
 
         private void Drift()
         {
-            if (_localRotationDifference != Vector3.zero)
+            if (_localRotationDifference != Vector3.zero && _canDrift)
             {
-                _rigidBody.transform.DORotate(-_localRotationDifference, 0.5f, RotateMode.WorldAxisAdd).SetEase(Ease.OutBack).OnComplete(() => { });
+                _canDrift = false;
+                _rigidBody.transform.DORotate(-_localRotationDifference, 0.5f, RotateMode.WorldAxisAdd).SetEase(Ease.OutBack).OnComplete(() => {  });
             }
         }
 
@@ -176,14 +199,39 @@ namespace Game.Scripts.Behaviours
             ToggleMovement(true);
         }
 
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (collision.gameObject.layer == LayerMask.NameToLayer("RoadBorder"))
+            {
+                Debug.Log("Hit");
+                ToggleMovement(false);
+                ToggleRotating(false);
+                _rigidBody.isKinematic = true;
+                _isHit = true;
+                transform.SetParent(null, true);
+                CoroutineController.DoAfterFixedUpdate(() => Hit?.Invoke());
+            }
+        }
+
+        private void ToggleTireTracks(bool state)
+        {
+            foreach (var track in _tireTracks)
+            {
+                track.enabled = state;
+            }
+        }
+
         private void ToggleMovement(bool state)
         {
+            if (_isHit && state) return;
             _canMove = state;
             CoroutineController.ToggleRoutine(state, MoveRoutineKey, MoveRoutine());
         }
         private void ToggleRotating(bool state, Direction? direction = null)
         {
+            if (_isHit && state) return;
             _canRotate = state;
+            ToggleTireTracks(state);
             CoroutineController.ToggleRoutine(state, RotateRoutineKey, RotateRoutine(direction));
         }
     }

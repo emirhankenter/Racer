@@ -9,7 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2762165987134123064}
-  m_Layer: 0
+  - component: {fileID: 3996959834377446459}
+  - component: {fileID: 2196759771062453112}
+  m_Layer: 11
   m_Name: 3xRoad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33,6 +35,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &3996959834377446459
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2762165987134123067}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 5, z: 60}
+  m_Center: {x: -10, y: 2.5, z: 30}
+--- !u!65 &2196759771062453112
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2762165987134123067}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 5, z: 60}
+  m_Center: {x: 10, y: 2.5, z: 30}
 --- !u!1001 &2762165986583915455
 PrefabInstance:
   m_ObjectHideFlags: 0

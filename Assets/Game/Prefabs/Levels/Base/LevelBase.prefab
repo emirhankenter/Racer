@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2333554313210505917}
   - component: {fileID: 4491747274341095803}
+  - component: {fileID: 9149236722322421737}
   m_Layer: 0
   m_Name: LevelBase
   m_TagString: Untagged
@@ -43,3 +44,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c6650bb40f47d14a9253bcfaf63d984, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _mapGenerator: {fileID: 9149236722322421737}
+  _roadCount: 10
+--- !u!114 &9149236722322421737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7925696292421033108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43d67993fdf8abb4d91ce9690a910c3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RoadDictionary:
+    RightTurn: {fileID: 448129052899450073, guid: 6693f2fa5d12c274ba4899ec5100dcb4,
+      type: 3}
+    LeftTurn: {fileID: 5466368718971270573, guid: 53bf352e0df0f4a449d370a40c72566b,
+      type: 3}
+    URightTurn: {fileID: 127149460336719688, guid: 9dce0baedfa9871439589b67b87a0b2e,
+      type: 3}
+    ULeftTurn: {fileID: 170006330268816777, guid: 9e38907b69ae8804aa0042795990433b,
+      type: 3}
