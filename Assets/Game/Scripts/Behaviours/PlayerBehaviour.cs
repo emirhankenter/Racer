@@ -140,10 +140,8 @@ namespace Game.Scripts.Behaviours
 
         private IEnumerator RotateRoutine(Direction? direction = null)
         {
-            var initialRotation = transform.localEulerAngles;
             var initialRotationQuaternion = transform.localRotation;
-            var limit = transform.localEulerAngles + (direction == Direction.Right ? _localRotationLimit : -_localRotationLimit);
-            var targetRotation = new Quaternion();
+            var targetRotation = transform.localRotation * Quaternion.Euler((direction == Direction.Right ? _localRotationLimit : -_localRotationLimit));
 
             _canDrift = true;
 
@@ -153,7 +151,6 @@ namespace Game.Scripts.Behaviours
                 {
                     transform.parent.rotation = Quaternion.Euler(0, transform.parent.eulerAngles.y + (direction == Direction.Right ? 1 : -1) * AngularSpeed * Time.fixedDeltaTime, 0);
 
-                    targetRotation = Quaternion.Euler(initialRotation + limit);
                     transform.localRotation = Quaternion.Lerp(transform.localRotation, targetRotation, LocalAngularSpeed * Time.fixedDeltaTime);
 
                     var difference = Quaternion.Angle(transform.localRotation, initialRotationQuaternion);
@@ -170,7 +167,7 @@ namespace Game.Scripts.Behaviours
             if (_localRotationDifference != Vector3.zero && _canDrift)
             {
                 _canDrift = false;
-                _rigidBody.transform.DORotate(-_localRotationDifference, 0.5f, RotateMode.WorldAxisAdd).SetEase(Ease.OutBack).OnComplete(() => {  });
+                _rigidBody.transform.DORotate(-_localRotationDifference, 0.5f, RotateMode.WorldAxisAdd).SetEase(Ease.OutBack).OnComplete(() => { });
             }
         }
 

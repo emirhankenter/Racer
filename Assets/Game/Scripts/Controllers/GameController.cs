@@ -44,7 +44,6 @@ namespace Game.Scripts.Controllers
 
         private void NextLevel()
         {
-            PlayerData.Level++;
             DisposeLevel();
         }
 
@@ -60,6 +59,7 @@ namespace Game.Scripts.Controllers
 
                 var earnAmount = PlayerData.Level * 50;
                 ViewController.Instance.GameOverView.Open(new GameOverViewParameters(earnAmount, OnRewardClaimed));
+                PlayerData.Level++;
                 PlayerData.Coin += earnAmount;
             }
             else
@@ -72,6 +72,7 @@ namespace Game.Scripts.Controllers
         {
             CoroutineController.DoAfterGivenTime(2f, () =>
             {
+                ViewController.Instance.GameOverView.Close();
                 NextLevel();
             });
         }
