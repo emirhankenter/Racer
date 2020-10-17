@@ -1,4 +1,5 @@
 ﻿using Game.Scripts.Behaviours;
+using Game.Scripts.View;
 using Mek.Controllers;
 using System;
 using System.Collections;
@@ -28,6 +29,8 @@ namespace Game.Scripts.Controllers
             CurrentLevel.Completed += OnLevelCompleted;
 
             _player.Initialize();
+
+            ViewController.Instance.InGameView.Open(new InGameViewParameters());
         }
 
         private void DisposeLevel()
@@ -49,18 +52,28 @@ namespace Game.Scripts.Controllers
         {
             CurrentLevel.Completed -= OnLevelCompleted;
 
+            ViewController.Instance.InGameView.Close();
+
             if (isSuccess)
             {
                 PlayConfetti();
-                CoroutineController.DoAfterGivenTime(2f, () =>
-                {
-                    NextLevel();
-                });
+
+                var earnAmount = PlayerData.Level * 50;
+                ViewController.Instance.GameOverView.Open(new GameOverViewParameters(earnAmount, OnRewardClaimed));
+                PlayerData.Coin += earnAmount;
             }
             else
             {
                 DisposeLevel();
             }
+        }
+
+        private void OnRewardClaimed()
+        {
+            CoroutineController.DoAfterGivenTime(2f, () =>
+            {
+                NextLevel();
+            });
         }
 
         private void PlayConfetti()

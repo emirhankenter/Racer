@@ -47,7 +47,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 5, z: 60}
-  m_Center: {x: -10, y: 2.5, z: 30}
+  m_Center: {x: -12, y: 2.5, z: 30}
 --- !u!65 &2196759771062453112
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -60,7 +60,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 5, z: 60}
-  m_Center: {x: 10, y: 2.5, z: 30}
+  m_Center: {x: 12, y: 2.5, z: 30}
 --- !u!1001 &2762165986583915455
 PrefabInstance:
   m_ObjectHideFlags: 0
