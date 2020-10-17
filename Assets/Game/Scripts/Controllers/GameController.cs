@@ -55,10 +55,8 @@ namespace Game.Scripts.Controllers
 
             if (isSuccess)
             {
-                PlayConfetti();
-
                 var earnAmount = PlayerData.Level * 50;
-                ViewController.Instance.GameOverView.Open(new GameOverViewParameters(earnAmount, OnRewardClaimed));
+                PlayConfetti(() => ViewController.Instance.GameOverView.Open(new GameOverViewParameters(earnAmount, OnRewardClaimed)));
                 PlayerData.Level++;
                 PlayerData.Coin += earnAmount;
             }
@@ -77,12 +75,16 @@ namespace Game.Scripts.Controllers
             });
         }
 
-        private void PlayConfetti()
+        private void PlayConfetti(Action onComplete = null)
         {
             _confetti.transform.position = _player.transform.position + Vector3.up * 1f;
             _confetti.gameObject.SetActive(true);
             _confetti.Play();
-            CoroutineController.DoAfterGivenTime(_confetti.main.duration, () => _confetti.gameObject.SetActive(false));
+            CoroutineController.DoAfterGivenTime(_confetti.main.duration, () => 
+            {
+                _confetti.gameObject.SetActive(false);
+                onComplete?.Invoke();
+            });
         }
     }
 }
