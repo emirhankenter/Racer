@@ -122,8 +122,11 @@ namespace Game.Scripts.Behaviours
         }
         private void OnPressCanceled(InputAction.CallbackContext obj)
         {
-            _line.Dispose();
-            Destroy(_line.gameObject);
+            if (_line)
+            {
+                _line.Dispose();
+                Destroy(_line.gameObject);
+            }
 
             ToggleHolding(false);
             ToggleMovement(true);
