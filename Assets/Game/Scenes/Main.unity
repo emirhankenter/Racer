@@ -1987,6 +1987,8 @@ MonoBehaviour:
   _levels:
   - {fileID: 7142280504879197335, guid: 8d8c07dfc38ce044589762f58cb232c5, type: 3}
   - {fileID: 7142280504879197335, guid: 29bd77c6708e5714e8ac0d05cb4c59a6, type: 3}
+  - {fileID: 7142280504879197335, guid: a78ae2f475db4354098be09af056335e, type: 3}
+  - {fileID: 7142280504879197335, guid: f974d7dfcc7b46f4582984482f49527f, type: 3}
 --- !u!4 &1066253805
 Transform:
   m_ObjectHideFlags: 0
