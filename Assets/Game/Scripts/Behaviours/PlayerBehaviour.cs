@@ -1,5 +1,4 @@
-﻿using Game.Scripts.Utilities;
-using Game.Scripts.Models;
+﻿using Game.Scripts.Models;
 using Mek.Controllers;
 using System;
 using System.Collections;
@@ -7,7 +6,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using DG.Tweening;
-using System.Security.Cryptography;
 
 namespace Game.Scripts.Behaviours
 {
