@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using DG.Tweening;
+using System.Security.Cryptography;
 
 namespace Game.Scripts.Behaviours
 {
@@ -124,6 +125,7 @@ namespace Game.Scripts.Behaviours
         private void OnPressCanceled(InputAction.CallbackContext obj)
         {
             _line.Dispose();
+            Destroy(_line.gameObject);
 
             ToggleHolding(false);
             ToggleMovement(true);
@@ -184,7 +186,7 @@ namespace Game.Scripts.Behaviours
             if (_localRotationDifference != Vector3.zero && _canDrift && !_isHit)
             {
                 _canDrift = false;
-                _rigidBody.transform.DORotate(-_localRotationDifference, 0.5f, RotateMode.WorldAxisAdd).SetEase(Ease.OutBack).OnComplete(() => { });
+                _rigidBody.transform.DORotate(-_localRotationDifference * 1.2f, 0.25f, RotateMode.WorldAxisAdd).SetEase(Ease.OutSine).OnComplete(() => {});
             }
         }
 
@@ -200,7 +202,9 @@ namespace Game.Scripts.Behaviours
 
                 transform.SetParent(corner.AnchorPoint, true);
 
-                _line = _linePrefab.Spawn();
+                //TODO: Object pooling is not working as it supposed to be
+                //_line = _linePrefab.Spawn();  
+                _line = Instantiate(_linePrefab);
                 _line.Initialize(transform, corner.AnchorPoint);
 
                 ToggleRotating(true, direction);

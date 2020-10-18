@@ -18,6 +18,8 @@ namespace Game.Scripts.Utilities
             _pooledObjects = go.transform;
         }
 
+
+        //TODO: Object pooling is not working as it supposed to be
         public T Spawn<T>(T target)
         {
             var selectedObj = default(GameObject);
