@@ -6,6 +6,13 @@ using UnityEngine;
 
 namespace Game.Scripts.Utilities
 {
+    public enum WorldDirection
+    {
+        Forward,
+        Backward,
+        Right,
+        Left
+    }
     [Serializable]
     public struct RoadDictionary
     {
@@ -62,25 +69,14 @@ namespace Game.Scripts.Utilities
         [SerializeField] private RoadDictionary RoadDictionary;
 
         private RoadBehaviour _lastRoad;
-        private Queue<RoadBehaviour> _lastRoads = new Queue<RoadBehaviour>();
-
         private Transform _parent;
+        private Vector3 _forward = Vector3.forward;
 
         public void Generate(Transform parent,int roadCount = 10)
         {
             _parent = parent;
             for (int i = 0; i < roadCount; i++)
             {
-                //var last2Roads = new List<RoadBehaviour>();
-
-                //if (i >= 2)
-                //{
-                //    foreach (var road in _lastRoads)
-                //    {
-                //        last2Roads.Add(road);
-                //    }
-                //    _lastRoads.Dequeue();SQ
-                //}
                 if (i == 0)
                 {
                     _lastRoad = Instantiate(RoadDictionary.GetRandomRegular(), parent);
@@ -90,31 +86,54 @@ namespace Game.Scripts.Utilities
                 if (i == roadCount - 1)
                 {
                     _lastRoad = InstantiateRoadAtPosition(RoadDictionary.Finish);
+                    _forward = _lastRoad.Edge.forward;
                     continue;
                 }
 
                 if (_lastRoad.RoadType == RoadType.RightTurn)
                 {
-                    _lastRoad = InstantiateRoadAtPosition(RoadDictionary.ULeftTurn);
-                    continue;
+                    if (_forward == Vector3.right)
+                    {
+                        _lastRoad = InstantiateRoadAtPosition(RoadDictionary.GetRandomLeft());
+                        continue;
+                    }
+                    else if (_forward == Vector3.forward)
+                    {
+                        _lastRoad = InstantiateRoadAtPosition(RoadDictionary.LeftTurn);
+                        continue;
+                    }
                 }
 
                 if (_lastRoad.RoadType == RoadType.LeftTurn)
                 {
-                    _lastRoad = InstantiateRoadAtPosition(RoadDictionary.URightTurn);
-                    continue;
+                    if (_forward == Vector3.left)
+                    {
+                        _lastRoad = InstantiateRoadAtPosition(RoadDictionary.GetRandomRight());
+                        continue;
+                    }
+                    else if (_forward == Vector3.forward)
+                    {
+                        _lastRoad = InstantiateRoadAtPosition(RoadDictionary.RightTurn);
+                        continue;
+                    }
                 }
 
                 if (_lastRoad.RoadType == RoadType.U_RightTurn)
                 {
-                    _lastRoad = InstantiateRoadAtPosition(RoadDictionary.ULeftTurn);
-                    continue;
+                    if (_forward == Vector3.right)
+                    {
+                        _lastRoad = InstantiateRoadAtPosition(RoadDictionary.GetRandomLeft());
+                        continue;
+                    }
                 }
 
                 if (_lastRoad.RoadType == RoadType.U_LeftTurn)
                 {
-                    _lastRoad = InstantiateRoadAtPosition(RoadDictionary.URightTurn);
-                    continue;
+                    if (_forward == Vector3.left)
+                    {
+                        _lastRoad = InstantiateRoadAtPosition(RoadDictionary.GetRandomRight());
+                        continue;
+                    }
                 }
             }
         }
@@ -127,6 +146,8 @@ namespace Game.Scripts.Utilities
             road.transform.localRotation = Quaternion.EulerAngles(Vector3.zero);
 
             road.transform.SetParent(_parent, true);
+
+            _forward = road.Edge.forward;
 
             return road;
         }
