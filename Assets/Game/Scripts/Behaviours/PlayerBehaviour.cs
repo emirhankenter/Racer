@@ -118,17 +118,17 @@ namespace Game.Scripts.Behaviours
 
         private void OnPressPerformed(InputAction.CallbackContext obj)
         {
-            ToggleHolding(true);
+            _holding = true;
         }
         private void OnPressCanceled(InputAction.CallbackContext obj)
         {
+            _holding = false;
             if (_line)
             {
                 _line.Dispose();
                 Destroy(_line.gameObject);
             }
 
-            ToggleHolding(false);
             ToggleMovement(true);
             ToggleRotating(false);
             Drift();
@@ -141,19 +141,6 @@ namespace Game.Scripts.Behaviours
             while (_canMove)
             {
                 _rigidBody.MovePosition(Vector3.Lerp(transform.position, transform.position + transform.forward, Time.fixedDeltaTime * Speed));
-                yield return new WaitForFixedUpdate();
-            }
-        }
-
-        private IEnumerator Holding()
-        {
-            while (_holding)
-            {
-                if (_canRotate && _canMove)
-                {
-                    ToggleMovement(false);
-                }
-
                 yield return new WaitForFixedUpdate();
             }
         }
@@ -222,7 +209,7 @@ namespace Game.Scripts.Behaviours
         {
             if (other.gameObject.CompareTag("Corner"))
             {
-                transform.SetParent(null);
+                transform.SetParent(null, true);
 
                 ToggleRotating(false);
                 ToggleMovement(true);
@@ -242,7 +229,6 @@ namespace Game.Scripts.Behaviours
 
         private void StopAll()
         {
-            ToggleHolding(false);
             ToggleMovement(false);
             ToggleRotating(false);
             _rigidBody.isKinematic = true;
@@ -261,22 +247,16 @@ namespace Game.Scripts.Behaviours
 
         private void ToggleMovement(bool state)
         {
-            if (_isHit && state) return;
+            if (_isHit && state || _canMove == state) return;
             _canMove = state;
             CoroutineController.ToggleRoutine(state, MoveRoutineKey, MoveRoutine());
         }
         private void ToggleRotating(bool state, Direction? direction = null)
         {
-            if (_isHit && state) return;
+            if (_isHit && state || _canRotate == state) return;
             _canRotate = state;
             ToggleTireTracks(state);
             CoroutineController.ToggleRoutine(state, RotateRoutineKey, RotateRoutine(direction));
-        }
-
-        private void ToggleHolding(bool state)
-        {
-            _holding = state;
-            CoroutineController.ToggleRoutine(state, "HoldingRoutine", Holding());
         }
     }
 }
