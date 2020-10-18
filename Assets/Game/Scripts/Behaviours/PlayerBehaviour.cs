@@ -55,15 +55,27 @@ namespace Game.Scripts.Behaviours
         {
             Input = new PlayerInputs();
 
-            Input.Enable();
-
-            RegisterEvents();
-
             _initialPosition = transform.position;
             _initialRotation = transform.rotation;
+
+            LevelBehaviour.Started += OnLevelStarted;
         }
 
         private void OnDestroy()
+        {
+            DeactivateInput();
+
+            LevelBehaviour.Started -= OnLevelStarted;
+        }
+
+        private void ActivateInput()
+        {
+            Input.Enable();
+
+            RegisterEvents();
+        }
+
+        private void DeactivateInput()
         {
             Input.Disable();
 
@@ -83,32 +95,37 @@ namespace Game.Scripts.Behaviours
             Input.Player.Press.canceled -= OnPressCanceled;
         }
 
-        private void FixedUpdate()
-        {
-        }
-
         public void Initialize()
         {
-            transform.SetParent(null);
-            transform.position = _initialPosition;
-            transform.rotation = _initialRotation;
             _rigidBody.isKinematic = false;
             _isHit = false;
             _canDrift = false;
             ToggleMovement(true);
+            ActivateInput();
+        }
+
+        private void OnLevelStarted()
+        {
+            ResetTransform();
+        }
+
+        private void ResetTransform()
+        {
+            transform.SetParent(null);
+            transform.localScale = Vector3.one;
+            transform.position = _initialPosition;
+            transform.rotation = Quaternion.Euler(Vector3.zero);
         }
 
         private void OnPressPerformed(InputAction.CallbackContext obj)
         {
-            _holding = true;
-
-            StartCoroutine(Holding());
+            ToggleHolding(true);
         }
         private void OnPressCanceled(InputAction.CallbackContext obj)
         {
-            _holding = false;
             _line.Dispose();
 
+            ToggleHolding(false);
             ToggleMovement(true);
             ToggleRotating(false);
             Drift();
@@ -164,7 +181,7 @@ namespace Game.Scripts.Behaviours
 
         private void Drift()
         {
-            if (_localRotationDifference != Vector3.zero && _canDrift)
+            if (_localRotationDifference != Vector3.zero && _canDrift && !_isHit)
             {
                 _canDrift = false;
                 _rigidBody.transform.DORotate(-_localRotationDifference, 0.5f, RotateMode.WorldAxisAdd).SetEase(Ease.OutBack).OnComplete(() => { });
@@ -213,16 +230,20 @@ namespace Game.Scripts.Behaviours
             {
                 StopAll();
                 CoroutineController.DoAfterFixedUpdate(() => Finish?.Invoke(false));
+                _rigidBody.transform.DOKill();
+                ResetTransform();
             }
         }
 
         private void StopAll()
         {
+            ToggleHolding(false);
             ToggleMovement(false);
             ToggleRotating(false);
             _rigidBody.isKinematic = true;
             _isHit = true;
             transform.SetParent(null, true);
+            DeactivateInput();
         }
 
         private void ToggleTireTracks(bool state)
@@ -245,6 +266,12 @@ namespace Game.Scripts.Behaviours
             _canRotate = state;
             ToggleTireTracks(state);
             CoroutineController.ToggleRoutine(state, RotateRoutineKey, RotateRoutine(direction));
+        }
+
+        private void ToggleHolding(bool state)
+        {
+            _holding = state;
+            CoroutineController.ToggleRoutine(state, "HoldingRoutine", Holding());
         }
     }
 }

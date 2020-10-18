@@ -30,9 +30,16 @@ namespace Game.Scripts.Controllers
 
             CurrentLevel.Completed += OnLevelCompleted;
 
-            _player.Initialize();
+            ViewController.Instance.LoadingView.Close();
+            ViewController.Instance.MainMenuView.Open(new MainMenuViewParameters(StartGame));
+        }
 
+        private void StartGame()
+        {
+            ViewController.Instance.MainMenuView.Close();
             ViewController.Instance.InGameView.Open(new InGameViewParameters());
+
+            _player.Initialize();
         }
 
         private void DisposeLevel()

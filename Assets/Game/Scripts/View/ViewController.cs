@@ -6,6 +6,12 @@ namespace Game.Scripts.View
 {
     public class ViewController : MonoBehaviour
     {
+        [SerializeField] private View _loadingView;
+        public View LoadingView => _loadingView;
+
+        [SerializeField] private View _mainMenuView;
+        public View MainMenuView => _mainMenuView;
+
         [SerializeField] private View _inGameView;
         public View InGameView => _inGameView;
 
