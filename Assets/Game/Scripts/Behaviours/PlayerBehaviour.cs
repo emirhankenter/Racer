@@ -99,6 +99,13 @@ namespace Game.Scripts.Behaviours
             _rigidBody.isKinematic = false;
             _isHit = false;
             _canDrift = false;
+
+            foreach (var track in _tireTracks)
+            {
+                track.enabled = true;
+                track.emitting = false;
+            }
+
             ToggleMovement(true);
             ActivateInput();
         }
@@ -231,6 +238,7 @@ namespace Game.Scripts.Behaviours
         {
             ToggleMovement(false);
             ToggleRotating(false);
+            ToggleTireTracks(false);
             _rigidBody.isKinematic = true;
             _isHit = true;
             transform.SetParent(null, true);
@@ -241,7 +249,12 @@ namespace Game.Scripts.Behaviours
         {
             foreach (var track in _tireTracks)
             {
-                track.enabled = state;
+                //track.Clear();
+                if (state)
+                {
+                    track.Clear();
+                }
+                track.emitting = state;
             }
         }
 
